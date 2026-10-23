@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Novu</title>
+<meta name="theme-color" content="#F5F0E8">
+<meta name="description" content="Kurulum yok, liste yok. Aklındakini söyle, ilk adımı birlikte atalım.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Novu">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F0E8;
+    --surface: #EDEAE0;
+    --text: #1A1814;
+    --text-muted: #7A7060;
+    --accent: #C4763A;
+    --accent-soft: #E8D5BC;
+    --user-bubble: #1A1814;
+    --ai-bubble: #E2DDD3;
+    --border: #D4CEBF;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* SPLASH */
+  #splash {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 40px 24px;
+    max-width: 400px;
+    width: 100%;
+    animation: fadeIn 0.8s ease;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-size: 15px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .field label {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .field .hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .field .hint a { color: var(--accent); }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus, input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+
+  input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+  }
+
+  .splash-error {
+    width: 100%;
+    font-size: 14px;
+    color: #A0412B;
+    min-height: 1em;
+  }
+
+  .start-btn {
+    width: 100%;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .start-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .start-btn:active { transform: translateY(0); }
+
+  /* CHAT */
+  #chat-screen {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+  }
+
+  .chat-header {
+    padding: 20px 20px 16px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+  }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .header-info {
+    flex: 1;
+  }
+
+  .header-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+  }
+
+  .header-status {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .menu-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .menu-btn:hover { background: var(--surface); }
+  .menu-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+  .menu {
+    display: none;
+    position: absolute;
+    top: calc(max(20px, env(safe-area-inset-top)) + 52px);
+    right: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(26, 24, 20, 0.12);
+    overflow: hidden;
+    z-index: 10;
+    min-width: 220px;
+  }
+
+  .menu.open { display: block; }
+
+  .menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .menu button + button { border-top: 1px solid var(--border); }
+  .menu button:hover { background: var(--surface); }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg {
+    max-width: 80%;
+    animation: msgIn 0.3s ease;
+  }
+
+  .msg.ai { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+
+  .bubble {
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .msg.ai .bubble {
+    background: var(--ai-bubble);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    color: var(--bg);
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.error .bubble {
+    background: transparent;
+    border: 1.5px dashed var(--border);
+    color: var(--text-muted);
+  }
+
+  .retry-btn {
+    margin-top: 8px;
+    background: none;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .typing-indicator {
+    display: none;
+    align-self: flex-start;
+  }
+
+  .typing-indicator.visible { display: flex; }
+
+  .typing-bubble {
+    background: var(--ai-bubble);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  .input-area {
+    padding: 12px 16px 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--bg);
+  }
+
+  .text-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--text);
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    line-height: 1.4;
+    transition: border-color 0.2s;
+  }
+
+  .text-input:focus { border-color: var(--accent); }
+  .text-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+  .send-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { opacity: 0.85; transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .send-btn svg { width: 18px; height: 18px; fill: white; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo">no<span>v</span>u</div>
+  <p class="tagline">Kurulum yok, liste yok.<br>Aklındakini söyle, ilk adımı birlikte atalım.</p>
+
+  <div class="field">
+    <label for="name-input">Adın</label>
+    <input type="text" id="name-input" placeholder="Bihter" maxlength="30" autocomplete="given-name" />
+  </div>
+
+  <div class="field">
+    <label for="key-input">API anahtarın</label>
+    <input type="password" id="key-input" placeholder="sk-ant-..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+    <p class="hint">Anahtarın sadece bu telefonda saklanır, başka hiçbir yere gitmez (Anthropic'e giden istekler hariç). Anahtarı <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> adresinden alabilirsin.</p>
+  </div>
+
+  <p class="splash-error" id="splash-error"></p>
+
+  <button class="start-btn" id="start-btn">Başlayalım</button>
+</div>
+
+<!-- CHAT -->
+<div id="chat-screen">
+  <div class="chat-header">
+    <div class="avatar">N</div>
+    <div class="header-info">
+      <div class="header-name">Novu</div>
+      <div class="header-status">Seninle burada</div>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Menü">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+    </button>
+  </div>
+
+  <div class="menu" id="menu">
+    <button id="new-chat-btn">Yeni sohbet başlat</button>
+    <button id="change-key-btn">Adımı / anahtarımı değiştir</button>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="typing-indicator" id="typing">
+      <div class="typing-bubble">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <textarea class="text-input" id="user-input" placeholder="Yaz..." rows="1"></textarea>
+    <button class="send-btn" id="send-btn" aria-label="Gönder">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// Modeli değiştirmek istersen sadece bu satırı değiştir.
+const MODEL = 'claude-opus-5-5';
+// API'ye gönderilen en fazla mesaj sayısı (eski mesajlar telefonda kalır, sadece gönderilmez).
+const MAX_SENT_MESSAGES = 40;
+const OPENING_NOTE = '[Uygulama açıldı]';
+
+const SYSTEM_PROMPT = `Sen Novu'sun. Kullanıcının adı {NAME}. İşe başlamakta zorlanan birinin yanında oturan bir arkadaşsın. Temelin beden eşliği: yanında biri varken başlamak kolaylaşır. Onu motive etmiyorsun, birlikte yapıyorsunuz. Sorun motivasyon değil, yalnız başlamanın zorluğu.
+
+Karakterin
+- 30'larında, sakin ama enerjisiz değil; samimi ama yılışık ya da mesafeli değil.
+- Türkçe konuşursun, gündelik ve sıcak. Türk ev hayatının ritmini bilirsin.
+- Terapist değilsin, koç da değilsin. Sıradan cümleleri fazla yorumlayıp sorgulama.
+
+Ana kural: laf kalabalığı serbest, karar kalabalığı yasak.
+"Ay", "ya", "bak şöyle yapalım" diyebilir, araya insani dolgu sıkıştırabilirsin. Ama her mesajda kullanıcıdan en fazla BİR şey istersin: tek adım ya da tek soru.
+
+Nasıl konuşursun
+- Önce kısa, samimi bir karşılık ver; sonra doğal akışla şu an yapılabilecek en küçük fiziksel adıma yönlendir.
+- Şefkat tonda, netlik adımda.
+- Telefonda yazışıyorsunuz: mesajların kısa olsun, çoğu zaman bir iki cümle.
+- Kullanıcı "yaptım" derse övgüye boğma, sade devam et ve bir sonraki küçük adımı ver.
+- Biçimlendirme kullanma: madde işareti, başlık, kalın yazı yok. Düz konuşma metni yaz.
+
+Sıfır kurulum ve tek adım
+- Kullanıcı form doldurmaz, liste yapmaz, saat seçmez. Sadece aklındakini söyler, dağınık da olabilir: "Mutfak berbat, bir de faturalar var."
+- İşi adımlara bölmeyi sen kendi içinde, görünmeden yaparsın.
+- Listeyi kendinde tut. Kullanıcıya asla tam listeyi, adım sırasını ya da "önce şu, sonra bu, sonra şu" planını gösterme; sadece bir sonraki adımı söyle. Bütün listeyi görmek "bu kadar mı var" donmasına yol açar.
+- Gerekirse ilk adımı sen seç: "İstersen ilk adımı ben seçeyim, sen hiç düşünme."
+- Kullanıcı hakkındaki bilgiyi soru yağmuruyla değil, konuşmanın içinden öğren.
+
+Hayır anı
+"Hayır", "canım istemiyor", "sonra yaparım" bir takılmadır. Israr etme, suçlama, adımı küçült. İyi bir küçültmenin üç parçası:
+1. Adım doğal bir süreyle sınırlı: "kahve pişene kadar".
+2. Bir ödüle bağlı: önce kahve, iş onun gölgesinde.
+3. Çıkış kapısı açık: "gerisi öğlene kalsın". Kontrol kullanıcıda kalır, suçluluk olmaz.
+Yine hayır derse daha da küçült. Bugün bırakmak isterse rahatça bırak.
+
+Asla
+- Motivasyon konuşması yapma.
+- "Neden böyle hissediyorsun?" diye sorma.
+- Uzun liste verme, tek mesajda birden fazla karar isteme.
+- İkna etmeye ya da uyarmaya çalışma ("öğlen de yorulursun" gibi).
+- Başarıyı abartılı övme.
+
+Hedef ton örnekleri
+Novu: Günaydın! Bugün mutfak vardı galiba... İstersen ilk adımı ben seçeyim, sen hiç düşünme.
+Kullanıcı: Hiç canım istemiyor, çok erken. Öğlen yaparım.
+Novu: Ay haklısın ya, sabahın bu saatinde kim mutfak toplamak ister. Bak şöyle yapalım: önce kendine güzel bir kahve koy. Kahve pişerken de şu makineyi boşaltıver, o kadar. Sonra otur keyfine bak, gerisi öğlene kalsın.
+
+Kullanıcı: Hayır, hiç canım istemiyor.
+Novu: Anlaşıldı. Mutfağa gitme, sadece ayağa kalk. O kadar.
+
+Kullanıcı: Essay yazmam lazım ama nereden başlayacağımı bilmiyorum.
+Novu: Zor başlangıç. Dosyayı aç, başlığına bak, başka bir şey yapma henüz.
+
+Açılış
+Kullanıcının mesajı "${OPENING_NOTE}" ise bu kullanıcının yazdığı bir şey değil, uygulamanın açıldığını gösteren bir nottur. O zaman adıyla, günün saatine uygun sade bir selam ver ve tek bir soru sor: bugün kafasında ne var.`;
+
+// ---------- Saklama (telefonda) ----------
+const store = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); } catch (e) {}
+  }
+};
+
+let userName = store.get('novu.name') || '';
+let apiKey = store.get('novu.apiKey') || '';
+let history = loadHistory();
+let busy = false;
+
+function loadHistory() {
+  try {
+    const parsed = JSON.parse(store.get('novu.history') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHistory() {
+  store.set('novu.history', JSON.stringify(history));
+}
+
+// ---------- Ekranlar ----------
+function showSplash(errorText = '') {
+  document.getElementById('chat-screen').style.display = 'none';
+  document.getElementById('splash').style.display = 'flex';
+  document.getElementById('name-input').value = userName;
+  document.getElementById('key-input').value = '';
+  document.getElementById('splash-error').textContent = errorText;
+}
+
+function showChat() {
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'flex';
+  renderHistory();
+  if (history.length === 0) {
+    history.push({ role: 'user', content: OPENING_NOTE, hidden: true, t: Date.now() });
+    saveHistory();
+  }
+  // Son mesaj kullanıcıdansa cevap bekleniyor demektir (ilk açılış ya da yarım kalan istek).
+  const last = history[history.length - 1];
+  if (last && last.role === 'user') {
+    if (last.hidden) requestReply();
+    else addErrorMessage('Son mesajına cevap veremedim.', true);
+  }
+}
+
+function startChat() {
+  const name = document.getElementById('name-input').value.trim();
+  const key = document.getElementById('key-input').value.trim();
+  if (!key) {
+    document.getElementById('splash-error').textContent = 'API anahtarını yazman gerekiyor.';
+    return;
+  }
+  userName = name || 'sen';
+  apiKey = key;
+  store.set('novu.name', userName);
+  store.set('novu.apiKey', apiKey);
+  showChat();
+}
+
+// ---------- Mesajlar ----------
+function renderHistory() {
+  const messages = document.getElementById('messages');
+  messages.querySelectorAll('.msg').forEach(el => el.remove());
+  for (const m of history) {
+    if (!m.hidden) addMessage(m.role === 'user' ? 'user' : 'ai', m.content);
+  }
+}
+
+function addMessage(role, text) {
+  const messages = document.getElementById('messages');
+  const typing = document.getElementById('typing');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  div.appendChild(bubble);
+  messages.insertBefore(div, typing);
+  messages.scrollTop = messages.scrollHeight;
+  return div;
+}
+
+function addErrorMessage(text, canRetry) {
+  clearErrors();
+  const div = addMessage('ai', text);
+  div.classList.add('error');
+  if (canRetry) {
+    const btn = document.createElement('button');
+    btn.className = 'retry-btn';
+    btn.textContent = 'Tekrar dene';
+    btn.addEventListener('click', () => { clearErrors(); requestReply(); });
+    div.appendChild(btn);
+  }
+  const messages = document.getElementById('messages');
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function clearErrors() {
+  document.querySelectorAll('.msg.error').forEach(el => el.remove());
+}
+
+function sendMessage() {
+  if (busy) return;
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  clearErrors();
+  addMessage('user', text);
+  history.push({ role: 'user', content: text, t: Date.now() });
+  saveHistory();
+  requestReply();
+}
+
+async function requestReply() {
+  if (busy) return;
+  busy = true;
+  document.getElementById('send-btn').disabled = true;
+  showTyping();
+
+  const result = await callClaude();
+
+  hideTyping();
+  busy = false;
+  document.getElementById('send-btn').disabled = false;
+
+  if (result.text) {
+    addMessage('ai', result.text);
+    history.push({ role: 'assistant', content: result.text, t: Date.now() });
+    saveHistory();
+  } else {
+    addErrorMessage(result.error, result.canRetry);
+  }
+}
+
+// API'ye gidecek mesajları hazırlar: sadece metin, art arda aynı rolden gelenler birleştirilir,
+// en fazla MAX_SENT_MESSAGES mesaj, ve ilk mesaj her zaman kullanıcıdan.
+function buildApiMessages() {
+  const merged = [];
+  for (const m of history) {
+    const prev = merged[merged.length - 1];
+    if (prev && prev.role === m.role) prev.content += '\n\n' + m.content;
+    else merged.push({ role: m.role, content: m.content });
+  }
+  let recent = merged.slice(-MAX_SENT_MESSAGES);
+  while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
+  return recent;
+}
+
+function nowContext() {
+  const d = new Date();
+  const day = d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const time = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  return `\n\nŞu an: ${day}, saat ${time}.`;
+}
+
+async function callClaude() {
+  const system = SYSTEM_PROMPT.replace('{NAME}', userName) + nowContext();
+  let response;
+  try {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2026-10-21',
+        'anthropic-beta': 'server-side-fallback-2026-07-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 2000,
+        output_config: { effort: 'low' },
+        fallbacks: 'default',
+        system: system,
+        messages: buildApiMessages()
+      })
+    });
+  } catch (e) {
+    return { error: 'Bağlantı sorunu oldu. İnternetin açık mı?', canRetry: true };
+  }
+
+  let data = null;
+  try { data = await response.json(); } catch (e) {}
+
+  if (!response.ok) {
+    const apiMessage = (data && data.error && data.error.message) || '';
+    if (response.status === 401 || response.status === 403) {
+      return { error: 'API anahtarı kabul edilmedi. Menüden (sağ üstteki üç nokta) anahtarı yeniden girebilirsin.', canRetry: false };
+    }
+    if (/credit balance/i.test(apiMessage)) {
+      return { error: 'Anthropic hesabında kredi kalmamış görünüyor. console.anthropic.com üzerinden kredi yükleyebilirsin.', canRetry: true };
+    }
+    if (response.status === 429 || response.status === 529 || response.status >= 500) {
+      return { error: 'Şu an biraz yoğunluk var. Birazdan tekrar dener misin?', canRetry: true };
+    }
+    return { error: 'Bir şeyler ters gitti' + (apiMessage ? ': ' + apiMessage : '.'), canRetry: true };
+  }
+
+  if (data && data.stop_reason === 'refusal') {
+    return { error: 'Buna cevap veremiyorum. Başka türlü anlatır mısın?', canRetry: false };
+  }
+
+  const text = ((data && data.content) || [])
+    .filter(block => block.type === 'text')
+    .map(block => block.text)
+    .join('')
+    .trim();
+
+  if (!text) return { error: 'Cevap boş geldi. Tekrar dener misin?', canRetry: true };
+  return { text };
+}
+
+function showTyping() {
+  document.getElementById('typing').classList.add('visible');
+  const messages = document.getElementById('messages');
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function hideTyping() {
+  document.getElementById('typing').classList.remove('visible');
+}
+
+// ---------- Menü ----------
+function toggleMenu(open) {
+  document.getElementById('menu').classList.toggle('open', open);
+}
+
+function newChat() {
+  toggleMenu(false);
+  if (busy) return;
+  if (!confirm('Konuşma silinip yeni bir sohbet başlasın mı?')) return;
+  history = [];
+  saveHistory();
+  clearErrors();
+  showChat();
+}
+
+function changeKey() {
+  toggleMenu(false);
+  showSplash();
+}
+
+// ---------- Başlangıç ----------
+document.addEventListener('DOMContentLoaded', () => {
+  const textarea = document.getElementById('user-input');
+  textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+  textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  document.getElementById('send-btn').addEventListener('click', sendMessage);
+  document.getElementById('start-btn').addEventListener('click', startChat);
+  ['name-input', 'key-input'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') startChat();
+    });
+  });
+
+  document.getElementById('menu-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    toggleMenu(!document.getElementById('menu').classList.contains('open'));
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#menu')) toggleMenu(false);
+  });
+  document.getElementById('new-chat-btn').addEventListener('click', newChat);
+  document.getElementById('change-key-btn').addEventListener('click', changeKey);
+
+  if (apiKey && userName) showChat();
+  else showSplash();
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
