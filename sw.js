@@ -1,5 +1,5 @@
 // Uygulama dosyalarından biri değişince bu sürümü bir artır (novu-v2, novu-v3...).
-const CACHE = 'novu-v1';
+const CACHE = 'novu-v2';
 const SHELL = [
   './',
   './index.html',
